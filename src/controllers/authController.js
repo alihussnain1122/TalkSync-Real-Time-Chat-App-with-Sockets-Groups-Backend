@@ -99,8 +99,9 @@ export const signup = async (req, res) => {
 export const verifyEmail = async (req, res) => {
     try {
         const { token } = req.params;
+        console.log('Verifying token:', token); // Debug log
+        
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
         const user = await User.findById(decoded.id);
         
         // Determine frontend URL based on environment
@@ -108,31 +109,39 @@ export const verifyEmail = async (req, res) => {
                            (process.env.NODE_ENV === 'production' 
                                ? 'https://talksync-nine.vercel.app' 
                                : 'http://localhost:5173');
+        
+        console.log('Frontend URL:', frontendUrl); // Debug log
 
         if (!user) {
-            // Redirect to frontend with error using query parameters
-            return res.redirect(`${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid token')}`);
+            const redirectUrl = `${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid token')}`;
+            console.log('Redirecting to (no user):', redirectUrl); // Debug log
+            return res.redirect(redirectUrl);
         }
 
         if (user.isVerified) {
-            // Redirect to frontend with already verified message
-            return res.redirect(`${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email already verified')}`);
+            const redirectUrl = `${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email already verified')}`;
+            console.log('Redirecting to (already verified):', redirectUrl); // Debug log
+            return res.redirect(redirectUrl);
         }
 
         user.isVerified = true;
         await user.save();
 
-        // Redirect to frontend with success
-        res.redirect(`${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email verified successfully')}`);
+        const redirectUrl = `${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email verified successfully')}`;
+        console.log('Redirecting to (success):', redirectUrl); // Debug log
+        res.redirect(redirectUrl);
     } catch (error) {
+        console.log('Verification error:', error.message); // Debug log
+        
         // Determine frontend URL based on environment
         const frontendUrl = process.env.FRONTEND_URL || 
                            (process.env.NODE_ENV === 'production' 
                                ? 'https://talksync-nine.vercel.app' 
                                : 'http://localhost:5173');
         
-        // Redirect to frontend with error
-        res.redirect(`${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid or expired token')}`);
+        const redirectUrl = `${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid or expired token')}`;
+        console.log('Redirecting to (error):', redirectUrl); // Debug log
+        res.redirect(redirectUrl);
     }
 };
 
