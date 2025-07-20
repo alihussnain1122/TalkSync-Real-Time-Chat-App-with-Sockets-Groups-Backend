@@ -34,6 +34,8 @@ export const signup = async (req, res) => {
         // ✅ Create token after user is created
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
         const url = `${process.env.BASE_URL}/api/auth/verify/${token}`;
+        
+        console.log("Generated verification URL:", url); // Debug log for verification
 
         // ✅ Send verification email with HTML template
         const emailHTML = `

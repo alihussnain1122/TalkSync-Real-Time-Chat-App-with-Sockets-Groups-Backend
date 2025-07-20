@@ -16,14 +16,8 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Load environment variables based on NODE_ENV
-const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
-dotenv.config({ path: path.resolve(__dirname, envFile) });
-
-// Fallback to default .env if environment-specific file doesn't exist
-if (!process.env.BASE_URL) {
-    dotenv.config();
-}
+// Load environment variables
+dotenv.config();
 const app = express();
 const PORT = process.env.PORT
 
@@ -47,6 +41,16 @@ app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/upload', uploadRoutes);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({
+    status: 'OK',
+    environment: process.env.NODE_ENV || 'development',
+    baseUrl: process.env.BASE_URL,
+    timestamp: new Date().toISOString()
+  });
+});
 
 
 const server= http.createServer(app);
