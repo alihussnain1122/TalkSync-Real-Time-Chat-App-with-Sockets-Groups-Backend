@@ -43,16 +43,17 @@ app.use('/api/upload', uploadRoutes);
 
 
 const server= http.createServer(app);
-const io= new Server(server, {
-    cors:{
-        origin: [
-            "http://localhost:5173",
-            "http://127.0.0.1:5173", 
-            "https://talksync-nine.vercel.app"
-        ],
-        credentials:true,
-    },
-})
+const io = socketIO(server, {
+  cors: {
+    origin: ['http://localhost:5173',
+     'http://127.0.0.1:5173',
+     'https://talksync-nine.vercel.app',
+     'https://talksync-kvsb.onrender.com'],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
+});
+
 socketHandler(io);
 
 server.listen(PORT, () => {
