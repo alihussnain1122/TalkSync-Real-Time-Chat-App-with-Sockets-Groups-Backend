@@ -27,17 +27,17 @@ const storage = multer.diskStorage({
 
 // File filter for allowed file types
 const fileFilter = (req, file, cb) => {
-  // Allow images, documents, and audio files
+  // Allow images and documents
   const allowedTypes = [
     'image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp',
     'application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    'text/plain', 'audio/wav', 'audio/mpeg', 'audio/mp3', 'audio/ogg', 'audio/webm'
+    'text/plain'
   ];
   
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Invalid file type. Only images, documents, and audio files are allowed.'), false);
+    cb(new Error('Invalid file type. Only images and documents are allowed.'), false);
   }
 };
 
@@ -66,8 +66,6 @@ export const handleUpload = async (req, res) => {
       let type = 'document';
       if (file.mimetype.startsWith('image/')) {
         type = 'image';
-      } else if (file.mimetype.startsWith('audio/')) {
-        type = 'voice';
       }
 
       return {

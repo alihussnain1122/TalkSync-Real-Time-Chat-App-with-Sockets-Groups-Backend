@@ -7,7 +7,7 @@ const messageSchema = new mongoose.Schema(
     chat: { type: mongoose.Schema.Types.ObjectId, ref: "Chat" },
     seenBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     attachments: [{
-      type: { type: String, enum: ['image', 'file', 'voice', 'document'] },
+      type: { type: String, enum: ['image', 'file', 'document'] },
       url: { type: String },
       name: { type: String },
       filename: { type: String },
