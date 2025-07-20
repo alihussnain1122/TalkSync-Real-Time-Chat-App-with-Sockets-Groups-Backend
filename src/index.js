@@ -16,7 +16,14 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-dotenv.config();
+// Load environment variables based on NODE_ENV
+const envFile = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+dotenv.config({ path: path.resolve(__dirname, envFile) });
+
+// Fallback to default .env if environment-specific file doesn't exist
+if (!process.env.BASE_URL) {
+    dotenv.config();
+}
 const app = express();
 const PORT = process.env.PORT
 
@@ -58,5 +65,8 @@ socketHandler(io);
 
 server.listen(PORT, () => {
     console.log('✅ Server is running on port ', + PORT);
+    console.log('🌍 Environment:', process.env.NODE_ENV || 'development');
+    console.log('🔗 Base URL:', process.env.BASE_URL);
+    console.log('📧 Email service configured with:', process.env.USER_EMAIL);
     connectDB();
 })

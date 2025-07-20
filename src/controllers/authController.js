@@ -33,10 +33,59 @@ export const signup = async (req, res) => {
 
         // ✅ Create token after user is created
         const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '15m' });
-        const url = `http://localhost:5000/api/auth/verify/${token}`;
+        const url = `${process.env.BASE_URL}/api/auth/verify/${token}`;
 
-        // ✅ Send verification email
-        await sendEmail(user.email, 'Verify Your Email', `Click to verify: ${url}`);
+        // ✅ Send verification email with HTML template
+        const emailHTML = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <meta charset="utf-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Verify Your Email - TalkSync</title>
+            </head>
+            <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f9fafb;">
+                <div style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; margin-top: 20px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                    <!-- Header -->
+                    <div style="background-color: #6366f1; padding: 40px 20px; text-align: center;">
+                        <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: bold;">TalkSync</h1>
+                        <p style="color: #e0e7ff; margin: 10px 0 0 0; font-size: 16px;">Welcome to the future of communication</p>
+                    </div>
+                    
+                    <!-- Content -->
+                    <div style="padding: 40px 20px;">
+                        <h2 style="color: #111827; margin: 0 0 20px 0; font-size: 24px;">Hi ${name}!</h2>
+                        <p style="color: #374151; line-height: 1.6; margin: 0 0 20px 0; font-size: 16px;">
+                            Welcome to TalkSync! We're excited to have you join our community. To get started, please verify your email address by clicking the button below:
+                        </p>
+                        
+                        <!-- Verification Button -->
+                        <div style="text-align: center; margin: 30px 0;">
+                            <a href="${url}" style="display: inline-block; background-color: #6366f1; color: #ffffff; text-decoration: none; padding: 12px 30px; border-radius: 6px; font-weight: bold; font-size: 16px;">Verify Email Address</a>
+                        </div>
+                        
+                        <p style="color: #6b7280; line-height: 1.6; margin: 20px 0 0 0; font-size: 14px;">
+                            If the button doesn't work, you can copy and paste this link into your browser:<br>
+                            <a href="${url}" style="color: #6366f1; word-break: break-all;">${url}</a>
+                        </p>
+                        
+                        <p style="color: #6b7280; line-height: 1.6; margin: 20px 0 0 0; font-size: 14px;">
+                            This verification link will expire in 15 minutes for security reasons.
+                        </p>
+                    </div>
+                    
+                    <!-- Footer -->
+                    <div style="background-color: #f3f4f6; padding: 20px; text-align: center; border-top: 1px solid #e5e7eb;">
+                        <p style="color: #6b7280; margin: 0; font-size: 14px;">
+                            If you didn't create an account with TalkSync, you can safely ignore this email.
+                        </p>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        await sendEmail(user.email, 'Verify Your Email - TalkSync', emailHTML);
 
         res.status(201).json({ message: 'Registered successfully, verify your email to login' });
     } catch (error) {
