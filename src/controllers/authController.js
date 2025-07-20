@@ -102,16 +102,37 @@ export const verifyEmail = async (req, res) => {
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
         const user = await User.findById(decoded.id);
-        if (!user) return res.status(400).json({ message: 'Invalid token' });
+        
+        // Determine frontend URL based on environment
+        const frontendUrl = process.env.FRONTEND_URL || 
+                           (process.env.NODE_ENV === 'production' 
+                               ? 'https://talk-sync-real-time-chat-app-with-sockets-groups-frontend.vercel.app' 
+                               : 'http://localhost:5173');
 
-        if (user.isVerified) return res.send('Email already verified');
+        if (!user) {
+            // Redirect to frontend with error
+            return res.redirect(`${frontendUrl}/verify-email/error?message=Invalid token`);
+        }
+
+        if (user.isVerified) {
+            // Redirect to frontend with already verified message
+            return res.redirect(`${frontendUrl}/verify-email/success?message=Email already verified`);
+        }
 
         user.isVerified = true;
         await user.save();
 
-        res.send('Email verified successfully!');
+        // Redirect to frontend with success
+        res.redirect(`${frontendUrl}/verify-email/success?message=Email verified successfully`);
     } catch (error) {
-        res.status(400).send('Invalid or expired token');
+        // Determine frontend URL based on environment
+        const frontendUrl = process.env.FRONTEND_URL || 
+                           (process.env.NODE_ENV === 'production' 
+                               ? 'https://talk-sync-real-time-chat-app-with-sockets-groups-frontend.vercel.app' 
+                               : 'http://localhost:5173');
+        
+        // Redirect to frontend with error
+        res.redirect(`${frontendUrl}/verify-email/error?message=Invalid or expired token`);
     }
 };
 
