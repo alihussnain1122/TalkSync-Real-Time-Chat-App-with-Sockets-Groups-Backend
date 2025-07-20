@@ -2,16 +2,15 @@ import Message from '../models/messageModel.js';
 import Chat from '../models/chatModel.js';
 
 export const sendMessage= async(req, res)=>{
-    const {content, chatId, attachments}= req.body;
-    if((!content && !attachments) || !chatId){
-        return res.status(400).json({message: "Missing content/attachments and chatId"});
+    const {content, chatId}= req.body;
+    if(!content || !chatId){
+        return res.status(400).json({message: "Missing content and chatId"});
     }
     try{
         let message= await Message.create({
             sender: req.user._id,
-            content: content || '',
-            chat: chatId,
-            attachments: attachments || []
+            content: content,
+            chat: chatId
         });
         message = await message.populate("sender", "name email");
         message= await message.populate("chat");

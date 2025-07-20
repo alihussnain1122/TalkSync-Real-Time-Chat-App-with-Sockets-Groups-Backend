@@ -3,18 +3,12 @@ import authRoutes from './routes/authRoutes.js';
 import chatRoutes from './routes/chatRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import userRoutes from './routes/userRoutes.js';
-import uploadRoutes from './routes/uploadRoutes.js';
 import dotenv from 'dotenv';
 import http from 'http';
 import {Server} from 'socket.io';
 import {socketHandler} from './socket/socket.js';
 import {connectDB} from './lib/db.js';
 import cors from 'cors';
-import path from 'path';
-import { fileURLToPath } from 'url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 // Load environment variables
 dotenv.config();
@@ -32,17 +26,11 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Serve static files from uploads directory
-app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
-// Fallback for old URLs (temporary compatibility)
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
 //Routes
 app.use('/api/auth', authRoutes)
 app.use('/api/chat', chatRoutes);
 app.use('/api/message', messageRoutes);
 app.use('/api/users', userRoutes);
-app.use('/api/upload', uploadRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
