@@ -2,6 +2,7 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
+import Message from '../models/messageModel.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -74,7 +75,7 @@ export const handleUpload = async (req, res) => {
         originalName: file.originalname,
         mimetype: file.mimetype,
         size: file.size,
-        url: `/uploads/${file.filename}`,
+        url: `/api/uploads/${file.filename}`,
         type: type
       };
     });
@@ -86,5 +87,41 @@ export const handleUpload = async (req, res) => {
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ message: 'Failed to upload files', error: error.message });
+  }
+};
+
+// Migration function to fix existing URLs in database
+export const fixExistingUrls = async (req, res) => {
+  try {
+    // Find all messages with attachments that have old URL format
+    const messages = await Message.find({
+      'attachments.url': { $regex: '^/uploads/' }
+    });
+
+    let updatedCount = 0;
+
+    for (const message of messages) {
+      let hasChanges = false;
+      
+      message.attachments.forEach(attachment => {
+        if (attachment.url && attachment.url.startsWith('/uploads/')) {
+          attachment.url = `/api${attachment.url}`;
+          hasChanges = true;
+        }
+      });
+
+      if (hasChanges) {
+        await message.save();
+        updatedCount++;
+      }
+    }
+
+    res.json({
+      message: `Successfully updated ${updatedCount} messages with fixed file URLs`,
+      updatedCount
+    });
+  } catch (error) {
+    console.error('Migration error:', error);
+    res.status(500).json({ message: 'Failed to fix URLs', error: error.message });
   }
 };

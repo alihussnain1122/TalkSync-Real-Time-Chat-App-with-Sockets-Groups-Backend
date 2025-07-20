@@ -33,6 +33,8 @@ app.use(cors({
 app.use(express.json());
 
 // Serve static files from uploads directory
+app.use('/api/uploads', express.static(path.join(__dirname, '../uploads')));
+// Fallback for old URLs (temporary compatibility)
 app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 //Routes
