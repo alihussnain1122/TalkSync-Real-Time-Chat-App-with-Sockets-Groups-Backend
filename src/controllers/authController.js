@@ -106,33 +106,33 @@ export const verifyEmail = async (req, res) => {
         // Determine frontend URL based on environment
         const frontendUrl = process.env.FRONTEND_URL || 
                            (process.env.NODE_ENV === 'production' 
-                               ? 'https://talk-sync-real-time-chat-app-with-sockets-groups-frontend.vercel.app' 
+                               ? 'https://talksync-nine.vercel.app' 
                                : 'http://localhost:5173');
 
         if (!user) {
-            // Redirect to frontend with error
-            return res.redirect(`${frontendUrl}/verify-email/error?message=Invalid token`);
+            // Redirect to frontend with error using query parameters
+            return res.redirect(`${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid token')}`);
         }
 
         if (user.isVerified) {
             // Redirect to frontend with already verified message
-            return res.redirect(`${frontendUrl}/verify-email/success?message=Email already verified`);
+            return res.redirect(`${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email already verified')}`);
         }
 
         user.isVerified = true;
         await user.save();
 
         // Redirect to frontend with success
-        res.redirect(`${frontendUrl}/verify-email/success?message=Email verified successfully`);
+        res.redirect(`${frontendUrl}/verify-email?status=success&message=${encodeURIComponent('Email verified successfully')}`);
     } catch (error) {
         // Determine frontend URL based on environment
         const frontendUrl = process.env.FRONTEND_URL || 
                            (process.env.NODE_ENV === 'production' 
-                               ? 'https://talk-sync-real-time-chat-app-with-sockets-groups-frontend.vercel.app' 
+                               ? 'https://talksync-nine.vercel.app' 
                                : 'http://localhost:5173');
         
         // Redirect to frontend with error
-        res.redirect(`${frontendUrl}/verify-email/error?message=Invalid or expired token`);
+        res.redirect(`${frontendUrl}/verify-email?status=error&message=${encodeURIComponent('Invalid or expired token')}`);
     }
 };
 
